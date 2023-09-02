@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Directory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 
 class DirectoryController extends Controller
 {
@@ -30,8 +31,7 @@ class DirectoryController extends Controller
                 'name' => 'required|unique:directories|max:255',
             ]);
             $directory = Directory::create($validated);
-
-            mkdir(Directory::__DIR__ . '/' . $validated['name']);
+            Storage::disk('uploads')->makeDirectory($validated['name']);
 
             return redirect()->route('directory.show', ['id' => $directory->id]);
         }
@@ -49,7 +49,7 @@ class DirectoryController extends Controller
             ]);
             $name = $validated['name'];
 
-            rename(Directory::__DIR__.'/'.$directory->name, Directory::__DIR__.'/'.$name);
+            Storage::disk('uploads')->move(Directory::__DIR__.'/'.$directory->name, Directory::__DIR__.'/'.$name);
 
             $directory->name = $name;
             $directory->save();
