@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DirectoryController;
+use App\Http\Controllers\FileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,4 +29,13 @@ Route::prefix('directories')->name('directory.')->controller(DirectoryController
     Route::match(['get', 'post'], '/{id}/edit', 'edit')->where(['id' => '[0-9]+'])->name('edit');
 
     Route::delete('/{id}', 'delete')->where(['id' => '[0-9]+'])->name('delete');
+});
+
+
+Route::prefix('files')->name('file.')->controller(FileController::class)->group(function () {
+    Route::match(['get', 'post'], '/{id}/uploads', 'uploads')->name('uploads');
+
+    Route::get('/{id}/{reference}/download', 'download')->name('download');
+
+    Route::delete('/{id}', 'delete')->name('delete');
 });

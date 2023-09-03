@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Directory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
 class DirectoryController extends Controller
@@ -21,7 +20,8 @@ class DirectoryController extends Controller
 
     public function show(int $id)
     {
-        return view('directory.show', ['directory' => Directory::findOrFail($id)]);
+        $directory = Directory::findOrFail($id);
+        return view('directory.show', ['directory' => $directory]);
     }
 
     public function create(Request $request)
@@ -49,10 +49,12 @@ class DirectoryController extends Controller
             ]);
             $name = $validated['name'];
 
-            Storage::disk('uploads')->move(Directory::__DIR__.'/'.$directory->name, Directory::__DIR__.'/'.$name);
+            Storage::disk('uploads')->move($directory->name, $name);
 
             $directory->name = $name;
             $directory->save();
+
+            return redirect()->route('directory.show', ['id' => $directory->id]);
         }
 
         return view('directory.edit', ['directory' => $directory]);
@@ -62,13 +64,13 @@ class DirectoryController extends Controller
     {
         $dir = Directory::findOrFail($id);
         try {
-            rmdir(Directory::__DIR__ . '/' . $dir->name);
+            Storage::disk('uploads')->deleteDirectory($dir->name);
+            $dir->delete();
         } catch (\Throwable $th) {
             session(['message' => 'Assurez vous que le dossier soit vide']);
 
             return redirect()->route('directory.edit', ['id' => $dir->id]);
         }
-        $dir->delete();
 
         return redirect()->route('directory.index');
     }

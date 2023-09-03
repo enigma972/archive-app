@@ -4,13 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Directory extends Model
 {
     use HasFactory;
 
-    public const __DIR__ = __DIR__.'/../../storage/uploads';
     protected $fillable = ['name'];
+
+    public function files(): HasMany
+    {
+        return $this->hasMany(File::class);
+    }
 
     public static function getDirSize($dir_name)
     {
